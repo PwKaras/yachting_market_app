@@ -3,14 +3,19 @@ import Link from "next/link";
 import Image from "next/image";
 import getRecentOffers from "@/services/offers/getRecent";
 import { FieldSet } from "airtable";
+import { Offer } from "@/types/Offers";
+// library for data fetching. SWR first returns the data from cache (stale), then sends the request (revalidate), and finally comes with the up-to-date data again
+import useSWR from "swr";
+import {} from "./api/offers/";
+import { jsonFetcher } from "@/utils";
 
 export const getStaticProps = async () => {
   const offers: FieldSet[] = await getRecentOffers(2);
 
   return {
     props: {
-      offers,
-    },
+      offers
+    }
   };
 };
 
@@ -18,24 +23,16 @@ export interface HomeProps {
   offers: Offer[];
 }
 
-export interface Offer {
-  id: number;
-  category: string;
-  title: string;
-  description: string;
-}
+const aData: Offer = {
+  category: "test",
+  id: 123,
+  title: "test",
+  description: "test,test"
+};
 
 export default function Home({ offers }: HomeProps) {
-  // const data = [
-  //   {
-  //     id: 1,
-  //     title: 'Formula 260 SS',
-  //     category: 'rent',
-  //     description:
-  //       'This 260 SS has been meticulously maintained and is in excellent condition! We always keep it in dry storage when not in use. Its very clean, and ready for the summer!'
-  //   }
-  // ];
-
+  const { data } = useSWR<Offer[]>("/api/offers", jsonFetcher, { fallbackData: offers });
+  console.log("data", data);
   return (
     <BaseLayout>
       <section className="text-gray-600 body-font">
@@ -48,17 +45,13 @@ export default function Home({ offers }: HomeProps) {
               <div className="h-1 w-20 bg-indigo-500 rounded"></div>
             </div>
             <p className="lg:w-1/2 w-full leading-relaxed text-gray-500">
-              Pick your favorite provider and search for all types of boat
-              rentals near you, including sailing boats, motorboats, and luxury
-              yachts.
+              Pick your favorite provider and search for all types of boat rentals near you,
+              including sailing boats, motorboats, and luxury yachts.
             </p>
           </div>
           <div className="flex flex-wrap -m-4">
-            {offers.map((offer) => (
-              <div
-                key={offer.id}
-                className="xl:w-1/4 md:w-1/2 p-4 cursor-pointer"
-              >
+            {data?.map((offer) => (
+              <div key={offer.id} className="xl:w-1/4 md:w-1/2 p-4 cursor-pointer">
                 <Link href={`/offers/${offer.id}`}>
                   <div className="bg-gray-100 p-6 rounded-lg">
                     <Image

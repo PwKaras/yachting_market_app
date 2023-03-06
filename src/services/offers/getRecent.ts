@@ -1,6 +1,6 @@
 import airDB from "../airtableClinet";
 
-const getRecent = async (maxRecords: any) => {
+const getRecent = async (maxRecords: number) => {
   const offers = await airDB("offers")
     .select({
       sort: [{ field: "id", direction: "desc" }],
