@@ -6,7 +6,6 @@ import { FieldSet } from "airtable";
 import { Offer } from "@/types/Offers";
 // library for data fetching. SWR first returns the data from cache (stale), then sends the request (revalidate), and finally comes with the up-to-date data again
 import useSWR from "swr";
-import {} from "./api/offers/";
 import { jsonFetcher } from "@/utils";
 
 export const getStaticProps = async () => {
@@ -32,7 +31,6 @@ const aData: Offer = {
 
 export default function Home({ offers }: HomeProps) {
   const { data } = useSWR<Offer[]>("/api/offers", jsonFetcher, { fallbackData: offers });
-  console.log("data", data);
   return (
     <BaseLayout>
       <section className="text-gray-600 body-font">
