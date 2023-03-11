@@ -3,4 +3,7 @@ export interface Offer {
   category: string;
   title: string;
   description: string;
+  mobile: string;
+  price: number;
+  location: string;
 }
