@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import getRecentOffers from "@/services/offers/getRecent";
 import { FieldSet } from "airtable";
-import { Offer } from "@/types/Offers";
+import { Category, Offer } from "@/types/Offers";
 // library for data fetching. SWR first returns the data from cache (stale), then sends the request (revalidate), and finally comes with the up-to-date data again
 import useSWR from "swr";
 import { jsonFetcher } from "@/utils";
@@ -22,12 +22,12 @@ export interface HomeProps {
   offers: Offer[];
 }
 
-const aData: Offer = {
-  category: "test",
-  id: 123,
-  title: "test",
-  description: "test,test"
-};
+// const aData: Offer = {
+//   category: Category.RENT,
+//   id: 123,
+//   title: "test",
+//   description: "test,test"
+// };
 
 export default function Home({ offers }: HomeProps) {
   const { data } = useSWR<Offer[]>("/api/offers", jsonFetcher, { fallbackData: offers });
