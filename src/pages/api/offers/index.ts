@@ -3,10 +3,7 @@ import getRecentOffers from "@/services/offers/getRecent";
 import { FieldSet, Records } from "airtable";
 import createOffer from "@/services/offers/create";
 
-const offersApi = async (
-  req: NextApiRequest,
-  res: NextApiResponse<FieldSet[] | Records<FieldSet>>
-) => {
+const offersApi = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   switch (req.method) {
     case "GET":
       const offers = await getRecentOffers(2);
@@ -14,10 +11,13 @@ const offersApi = async (
 
       break;
     case "POST":
-      const payload = req.body;
-      console.log("payload", payload);
-      const offer = await createOffer(payload);
-      res.status(200).json({ ...offer });
+      try {
+        const payload = req.body;
+        const offer = await createOffer(payload);
+        res.status(200).json({ ...offer });
+      } catch (error) {
+        res.status(422).json({ status: "not_created", error });
+      }
 
       break;
 
