@@ -14,7 +14,7 @@ const offersApi = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       try {
         const payload = req.body;
         const offer = await createOffer(payload);
-        res.status(200).json({ ...offer });
+        res.status(200).json({ ...offer[0] });
       } catch (error) {
         res.status(422).json({ status: "not_created", error });
       }

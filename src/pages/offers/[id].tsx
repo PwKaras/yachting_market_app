@@ -1,15 +1,58 @@
 import BaseLayout from "@/components/BaseLayout";
+import getOffer from "@/services/offers/getOffer";
+import getRecentOffers from "@/services/offers/getRecent";
+import { Offer } from "@/types/Offers";
+import { FieldSet } from "airtable";
+import { useRouter } from "next/router";
 
-export default function OfferPage() {
-  const offer = {
-    title: "Sample name of boat",
-    category: "rent",
-    description:
-      "This 260 SS has been meticulously maintained and is in excellent condition! We always keep it in dry storage when not in use. Its very clean, and ready for the summer!",
-    location: "Berlin",
-    price: 123,
-    mobile: "+48 790 678 987"
+// getStaticPaths return collection of pages than could be generated
+export const getStaticPaths = async () => {
+  const offers: FieldSet[] = await getRecentOffers(5);
+
+  return {
+    paths: offers.map((offer) => ({ params: { id: String(offer.id) } })),
+    // fallback set on true => next not throw error when user set in path "id", which one is not in offers list
+    fallback: true
   };
+};
+
+export interface PathsParams {
+  params: {
+    id: string;
+  };
+}
+
+// collection of pages from getStaticPaths (params) go to getStaticsProps,
+export const getStaticProps = async ({ params }: PathsParams) => {
+  const offer = await getOffer(params.id);
+
+  return {
+    // revalidate - number of seconds => if next page entry is after set number of seconds, NEXT rebuild this page
+    // watch out - on dev all is reloaded on spot, =>to test revalidate needs to Build and start production package
+    revalidate: 30,
+    props: {
+      offer
+    }
+  };
+};
+
+export interface OfferPageProps {
+  offer: Offer;
+}
+
+export default function OfferPage({ offer }: OfferPageProps) {
+  const router = useRouter();
+
+  // if fallback set to true in getStaticPaths, in case bellow NEXT catch this situation and display f.e. Loading, but in the mean time take date to generate this page, and after a while generate this page
+  // When to use => f.e. app have thousands of pages with offers, as statics are generate just last 500, when user ask for other offers, is taken thanks to fallback true and router.isFallback
+
+  if (router.isFallback) {
+    return (
+      <BaseLayout>
+        <div>Loading...</div>
+      </BaseLayout>
+    );
+  }
 
   return (
     <BaseLayout>
