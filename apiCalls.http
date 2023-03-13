@@ -1,0 +1,12 @@
+POST http://localhost:3000/api/offers
+Content-Type: application/json
+
+{
+    # "email": "fake@email.com",
+    "title": "Nice cruse",
+    "mobile": "35469842",
+    "category": "rent",
+    "description": "some short description",
+    "location": "Plymouth",
+    "price": "354"
+}

@@ -11,10 +11,12 @@ export interface offerForm {
 export default function OfferNew() {
   const offerFormRef = useRef<HTMLFormElement>(null);
   const [isProgressForm, setIsProgressForm] = useState<boolean>(false);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
     setIsProgressForm(true);
     if (isProgressForm) return;
     if (offerFormRef.current === null) return;
@@ -28,15 +30,20 @@ export default function OfferNew() {
       location: form.get("location")
     };
 
-    await fetch("/api/offers", {
+    const response = await fetch("/api/offers", {
       method: "POST",
       body: JSON.stringify(payload),
       headers: {
         "Content-Type": "application/json"
       }
     });
-
-    router.push("/offers/thanks");
+    if (response.ok) {
+      router.push("/offers/thanks");
+    } else {
+      const payload = await response.json();
+      setIsProgressForm(false);
+      setError(payload.error?.details[0]?.message);
+    }
   };
 
   return (
@@ -141,6 +148,11 @@ export default function OfferNew() {
                   className="disabled:opacity-50 flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
                   {isProgressForm ? "Please wailt.." : "Submit offer"}
                 </button>
+                {error && (
+                  <div className="flex justify-center w-full my-5">
+                    <span className="bg-red-600 w-full rounded">Offer not added: {error}</span>
+                  </div>
+                )}
               </div>
             </form>
           </div>
